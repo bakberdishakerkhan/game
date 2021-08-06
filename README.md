@@ -1,6 +1,6 @@
-# game
 from pygame import *
 from random import randint
+
 # подгружаем отдельно функции для работы со шрифтом
 font.init()
 # во время игры пишем надписи размера 36
@@ -28,7 +28,7 @@ class GameSprite(sprite.Sprite):
       sprite.Sprite.init(self)
     
       # каждый спрайт должен хранить свойство image - изображение
-      self.image = transform.scale(image.load("enemy.png"), (size_x, size_y))
+      self.image = transform.scale(image.load(player_image), (size_x, size_y))
       self.speed = player_speed
  
       # каждый спрайт должен хранить свойство rect - прямоугольник, в который он вписан
@@ -60,6 +60,7 @@ class Enemy(GameSprite):
       if self.rect.y > win_height:
           self.rect.x = randint(80, win_width - 80)
           self.rect.y = 0
+          lost = lost + 1
  
 # класс спрайта-пули   
 class Bullet(GameSprite):
@@ -73,9 +74,9 @@ class Bullet(GameSprite):
 # Создаем окошко
 win_width = 700
 win_height = 500
-display.set_caption("Лабиринт")
+display.set_caption("NINJA!")
 window = display.set_mode((win_width, win_height))
-background = transform.scale(image.load("fon.jpg"), (win_width, win_height))
+background = transform.scale(image.load(img_back), (win_width, win_height))
  
 # создаем спрайты
 ship = Player(img_hero, 5, win_height - 100, 80, 100, 10)   
@@ -85,7 +86,7 @@ monsters = sprite.Group()
 for i in range(1, 6):
   monster = Enemy(img_enemy, randint(80, win_width - 80), -40, 80, 50, randint(1, 5))
   monsters.add(monster)
- 
+
 bullets = sprite.Group()
  
 # переменная "игра закончилась": как только там True, в основном цикле перестают работать спрайты
@@ -129,30 +130,30 @@ while run:
 
 
 
-# проверка столкновения пули и монстров (и монстр, и пуля при касании исчезают)
-collides = sprite.groupcollide(monsters, bullets, True, True)
-for c in collides:
-          # этот цикл повторится столько раз, сколько монстров подбито
-  score = score + 1
-  monster = Enemy(img_enemy, randint(80, win_width - 80), -40, 80, 50, randint(1, 5))
-  monsters.add(monster)
- 
-      # возможный проигрыш: пропустили слишком много или герой столкнулся с врагом
-if sprite.spritecollide(ship, monsters, False) or lost >= max_lost:
-  finish = True # проиграли, ставим фон и больше не управляем спрайтами.
-          # вычисляем отношение
-  img = image.load("youlose.png")
-  d = img.get_width() // img.get_height()
-  window.fill((255, 255, 255))
-  window.blit(transform.scale(img, (win_height * d, win_height)), (90, 0))
-  
-      # проверка выигрыша: сколько очков набрали?
-if score >= goal:
-  finish = True
-  img = image.load("enemy.png")
-  window.fill((255, 255, 255))
-  window.blit(transform.scale(img, (win_width, win_height)), (0, 0))
- 
-  display.update()
+    # проверка столкновения пули и монстров (и монстр, и пуля при касании исчезают)
+      collides = sprite.groupcollide(monsters, bullets, True, True)
+      for c in collides:
+        # этот цикл повторится столько раз, сколько монстров подбито
+        score = score + 1
+        monster = Enemy(img_enemy, randint(80, win_width - 80), -40, 80, 50, randint(1, 5))
+        monsters.add(monster)
+    
+        # возможный проигрыш: пропустили слишком много или герой столкнулся с врагом
+      if sprite.spritecollide(ship, monsters, False) or lost >= max_lost:
+        finish = True # проиграли, ставим фон и больше не управляем спрайтами.
+            # вычисляем отношение
+        img = image.load("youlose.png")
+        d = img.get_width() // img.get_height()
+        window.fill((255, 255, 255))
+        window.blit(transform.scale(img, (win_height * d, win_height)), (90, 0))
+    
+        # проверка выигрыша: сколько очков набрали?
+      if score >= goal:
+        finish = True
+        img = image.load("enemy.png")
+        window.fill((255, 255, 255))
+        window.blit(transform.scale(img, (win_width, win_height)), (0, 0))
+        
+        display.update()
   # цикл срабатывает каждую 0.05 секунд
 time.delay(50)
